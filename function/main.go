@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"crypto/sha512"
-	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
 )
@@ -21,40 +21,81 @@ func (t *azureTable) init(connStr, table string) error {
 	if err == nil {
 		t.client = client.NewClient(table)
 	}
+	t.client.CreateTable(context.TODO(), nil)
 	return err
 }
 
-func (t *azureTable) getEntry(dns string) (string, bool) {
-	var result string
-	exist := false
+func (t *azureTable) getEntry(dns string) (aztables.GetEntityResponse, bool) {
+	var exist bool
+	var result aztables.GetEntityResponse
+	pKey, rKey, ok := parseDomain(dns)
 
-	h := sha512.New()
-	h.Write([]byte(dns))
+	if ok {
+		var err error
+		result, err = t.client.GetEntity(context.TODO(), pKey, rKey, nil)
 
-	hashed := hex.EncodeToString(h.Sum([]byte("com")))
+		if err == nil {
+			exist = true
+		}
+	}
 
-	fmt.Println(hashed)
-
-	fmt.Println(t.client.GetEntity(context.TODO(), hashed, "", nil))
 	return result, exist
 }
 
+func (t *azureTable) setEntry(dns string) {
+	pKey, rKey, ok := parseDomain(dns)
+
+	if ok {
+		entity := aztables.Entity{
+			PartitionKey: pKey,
+			RowKey:       rKey,
+		}
+
+		newEntity, err := json.Marshal(entity)
+		if err != nil {
+			t.client.AddEntity(context.TODO(), newEntity, nil)
+		}
+
+	}
+
+}
+
+func parseDomain(dns string) (string, string, bool) {
+	dns = strings.ToLower(dns)
+	var valid bool
+	var domainName, subDomain string
+	domains := strings.Split(dns, ".")
+	domains_len := len(domains)
+	switch {
+	case domains_len >= 2:
+		domainName = domains[domains_len-2] + "." + domains[domains_len-1]
+		valid = true
+		fallthrough
+	case domains_len > 2:
+		subDomain = dns[:len(dns)-len(domainName)]
+	}
+	return domainName, subDomain, valid
+}
+
 func main() {
+
 	var aztable azureTable
 
-	connStr, exists := os.LookupEnv("AzureWebJobsStorage")
+	connStr, exist := os.LookupEnv("AzureWebJobsStorage")
 
-	if !exists {
+	if !exist {
 		fmt.Println("[ERR] Couldn't obtain connection string")
 		return
 	}
-	tableName := "table1"
+	tableName := "table3"
 
 	err := aztable.init(connStr, tableName)
 
 	if err != nil {
 		panic(err)
 	}
+	aztable.setEntry("test.com")
+	_, blocked := aztable.getEntry("aaa.test.com")
 
-	aztable.getEntry("test.com")
+	fmt.Println(blocked)
 }
