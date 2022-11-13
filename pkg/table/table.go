@@ -1,10 +1,8 @@
-package main
+package table
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
@@ -28,15 +26,25 @@ func (t *azureTable) init(connStr, table string) error {
 func (t *azureTable) getEntry(dns string) (aztables.GetEntityResponse, bool) {
 	var exist bool
 	var result aztables.GetEntityResponse
+	var err error
 	pKey, rKey, ok := parseDomain(dns)
 
 	if ok {
-		var err error
+		rKeyLvl := strings.Count(rKey, ".")
 		result, err = t.client.GetEntity(context.TODO(), pKey, rKey, nil)
 
+		if err != nil {
+			if rKeyLvl > 1 {
+				rKey = strings.SplitAfter(rKey, ".")[1]
+			} else {
+				rKey = ""
+			}
+			result, err = t.client.GetEntity(context.TODO(), pKey, rKey, nil)
+		}
 		if err == nil {
 			exist = true
 		}
+
 	}
 
 	return result, exist
@@ -75,27 +83,4 @@ func parseDomain(dns string) (string, string, bool) {
 		subDomain = dns[:len(dns)-len(domainName)]
 	}
 	return domainName, subDomain, valid
-}
-
-func main() {
-
-	var aztable azureTable
-
-	connStr, exist := os.LookupEnv("AzureWebJobsStorage")
-
-	if !exist {
-		fmt.Println("[ERR] Couldn't obtain connection string")
-		return
-	}
-	tableName := "table3"
-
-	err := aztable.init(connStr, tableName)
-
-	if err != nil {
-		panic(err)
-	}
-	aztable.setEntry("test.com")
-	_, blocked := aztable.getEntry("aaa.test.com")
-
-	fmt.Println(blocked)
 }
