@@ -1,4 +1,4 @@
-module github.com/groovy-sky/azure-dns-over-https/v2
+module github.com/groovy-sky/azuredoh/v2
 
 go 1.18
 
