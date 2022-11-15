@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	_ "github.com/groovy-sky/azuredoh/v2/pkg/table"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 	}
 	tableName := "table3"
 
-	err := table.aztable.init(connStr, tableName)
+	err := aztable.init(connStr, tableName)
 
 	if err != nil {
 		panic(err)
