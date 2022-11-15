@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	var aztable table.azureTable
+	var aztable AzureTable
 
 	connStr, exist := os.LookupEnv("AzureWebJobsStorage")
 

@@ -8,11 +8,11 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
 )
 
-type azureTable struct {
+type AzureTable struct {
 	client *aztables.Client
 }
 
-func (t *azureTable) Init(connStr, table string) error {
+func (t *AzureTable) Init(connStr, table string) error {
 	var err error
 	client, err := aztables.NewServiceClientFromConnectionString(connStr, nil)
 
@@ -23,7 +23,7 @@ func (t *azureTable) Init(connStr, table string) error {
 	return err
 }
 
-func (t *azureTable) GetEntry(dns string) (aztables.GetEntityResponse, bool) {
+func (t *AzureTable) GetEntry(dns string) (aztables.GetEntityResponse, bool) {
 	var exist bool
 	var result aztables.GetEntityResponse
 	var err error
@@ -50,7 +50,7 @@ func (t *azureTable) GetEntry(dns string) (aztables.GetEntityResponse, bool) {
 	return result, exist
 }
 
-func (t *azureTable) SetEntry(dns string) {
+func (t *AzureTable) SetEntry(dns string) {
 	pKey, rKey, ok := parseDomain(dns)
 
 	if ok {
