@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/groovy-sky/azuredoh/v2/pkg/table"
+	"github.com/groovy-sky/azuredoh/v2/pkg/table"
 )
 
 func main() {
-	var aztable AzureTable
+	var aztable table.AzureTable
 
 	connStr, exist := os.LookupEnv("AzureWebJobsStorage")
 
@@ -18,13 +18,13 @@ func main() {
 	}
 	tableName := "table3"
 
-	err := aztable.init(connStr, tableName)
+	err := aztable.Init(connStr, tableName)
 
 	if err != nil {
 		panic(err)
 	}
-	aztable.setEntry("test.com")
-	_, blocked := aztable.getEntry("aaa.test.com")
+	aztable.SetEntry("test.com")
+	_, blocked := aztable.GetEntry("aaa.test.com")
 
 	fmt.Println(blocked)
 }
