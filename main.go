@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/groovy-sky/azuredoh/v2/pkg/table"
+	"github.com/groovy-sky/doh4a/v2/pkg/table"
 )
 
 func main() {
@@ -51,7 +51,6 @@ func main() {
 
 			break
 		}
-		fmt.Println(domain[:len(domain)-1])
 
 		aztable.SetEntry(domain[:len(domain)-1])
 	}
