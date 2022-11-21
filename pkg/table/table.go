@@ -3,6 +3,7 @@ package table
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
@@ -50,9 +51,9 @@ func (t *AzureTable) GetEntry(dns string) (aztables.GetEntityResponse, bool) {
 	return result, exist
 }
 
-func (t *AzureTable) SetEntry(dns string) {
+func (t *AzureTable) SetEntry(dns string) error {
 	pKey, rKey, ok := parseDomain(dns)
-
+	outerr := errors.New("couldn't parse DNS")
 	if ok {
 		entity := aztables.Entity{
 			PartitionKey: pKey,
@@ -60,11 +61,14 @@ func (t *AzureTable) SetEntry(dns string) {
 		}
 
 		newEntity, err := json.Marshal(entity)
-		if err != nil {
-			t.client.AddEntity(context.TODO(), newEntity, nil)
+		if err == nil {
+			_, outerr = t.client.AddEntity(context.TODO(), newEntity, nil)
+		} else {
+			outerr = err
 		}
 
 	}
+	return outerr
 
 }
 

@@ -1,4 +1,4 @@
-module github.com/groovy-sky/azuredoh/v2
+module github.com/groovy-sky/doh4a/v2
 
 go 1.18
 
