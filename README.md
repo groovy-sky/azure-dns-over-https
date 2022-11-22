@@ -11,3 +11,7 @@ https://github.com/philippgille/gokv/blob/93d491e1a0c9ba21a1a88e7e5888da159671a1
 https://github.com/Azure/azure-sdk-for-go/tree/main/sdk/data/aztables
 
 https://medium.com/swlh/processing-16gb-file-in-seconds-go-lang-3982c235dfa2
+
+https://radar.cloudflare.com/domains
+
+https://hackertarget.com/top-million-site-list-download/
